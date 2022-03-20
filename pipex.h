@@ -7,13 +7,19 @@
 # include <fcntl.h>
 # include "libft/libft.h"
 # include <stdio.h>
+#include <sys/types.h>
+#include <string.h>
 
 typedef struct s_pipex
 {
-	int infile;
-	int outfile;
-	char *cmd;
-	char *paths;
+	int		infile;
+	int		outfile;
+	char	*cmd;
+	char	*paths;
+	int		tube[2];
+	char	**cmd_path;
+	char	**cmd_arg;;
 	
-}				t_pipex
+}				t_pipex;
+
 #endif
