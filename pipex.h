@@ -14,11 +14,12 @@ typedef struct s_pipex
 {
 	int		infile;
 	int		outfile;
-	char	*cmd;
-	char	*paths;
+	// char	*cmd;
+	// char	*paths;
 	int		tube[2];
-	char	**cmd_path;
-	char	**cmd_arg;;
+	// char	**cmd_path;
+	// char	**cmd_arg;;
+	pid_t	pid;
 	
 }				t_pipex;
 
