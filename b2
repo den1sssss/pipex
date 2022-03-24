@@ -1,0 +1,11 @@
+Makefile
+a
+a.out
+a.out.dSYM
+b2
+libft
+pipex
+pipex.c
+pipex.dSYM
+pipex.h
+pipex.h.gch

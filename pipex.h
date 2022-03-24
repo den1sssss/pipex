@@ -12,8 +12,8 @@
 
 typedef struct s_pipex
 {
-	int		infile;
-	int		outfile;
+	int		input;
+	int		output;
 	// char	*cmd;
 	// char	*paths;
 	int		tube[2];
