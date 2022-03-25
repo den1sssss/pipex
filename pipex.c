@@ -1,28 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pipex.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dshirely <dshirely@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/25 13:38:24 by dshirely          #+#    #+#             */
+/*   Updated: 2022/03/25 14:24:19 by dshirely         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 //pipe()
 //fork()
 //dub2()(int oldfd, int newfd);
 //execve()
 
-
-
-void printerror(char *str)
-{
-	perror(str);
-	exit(0);
-}
-
-int get_next_line(char **line)
-{
-	int rd = 0;
-	int i = 0;
-	char *buffer = malloc(100000);
-	*line = buffer;
-	while((rd = read(0,&buffer[i], 1) > 0 && buffer[i] != '\n'))
-		i++;
-	buffer[i] = '\0';
-	return (rd);
-}
 char	*find_path(char *cmd, char **envp)
 {
 	char	**paths;
@@ -45,84 +38,64 @@ char	*find_path(char *cmd, char **envp)
 		free(path);
 		i++;
 	}
-	i = -1;
-	while (paths[++i])
-		free(paths[i]);
-	free(paths);
+	freee(paths);
 	return (0);
 }
 
-void executecommand(char *argv,char **env)
+void	executecommand(char *argv, char **env)
 {
 	char	**cmd;
-	int 	i;
+	int		i;
 	char	*path;
-	
+
 	i = -1;
 	cmd = ft_split(argv, ' ');
 	path = find_path(cmd[0], env);
-	if (!path)	
+	if (!path)
 	{
-		while (cmd[++i])
-			free(cmd[i]);
-		free(cmd);
-		printerror("kek");
+		freee(cmd);
+		printerror("path error\n");
 	}
 	if (execve(path, cmd, env) == -1)
-		printerror("kek");
+		printerror("execve error\n");
 }
 
-void child(char **argv,char **env,t_pipex pipex)
+void	child(char **argv, char **env, t_pipex pipex)
 {
-	// int input;
-
-	pipex.input = open(argv[1],O_RDONLY,0777);//S_IRWXU);
-	if(pipex.input == -1)
+	pipex.input = open(argv[1], O_RDONLY, S_IRWXU);
+	if (pipex.input == -1)
 		printerror("childerror\n");
-	dup2(pipex.tube[1],STDOUT_FILENO);
-	dup2(pipex.input,STDIN_FILENO);
+	dup2(pipex.tube[1], STDOUT_FILENO);
+	dup2(pipex.input, STDIN_FILENO);
 	close(pipex.tube[0]);
-	executecommand(argv[2],env);
+	executecommand(argv[2], env);
 }
-void parent(char **argv,char **env,t_pipex pipex)
-{
-	// int output;
 
-	pipex.output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);//O_RDONLY,S_IRWXU);
-	if(pipex.output == -1)
+void	parent(char **argv, char **env, t_pipex pipex)
+{
+	pipex.output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
+	if (pipex.output == -1)
 		printerror("parenterror\n");
-	dup2(pipex.tube[0],STDIN_FILENO);
-	dup2(pipex.output,STDOUT_FILENO);
+	dup2(pipex.tube[0], STDIN_FILENO);
+	dup2(pipex.output, STDOUT_FILENO);
 	close(pipex.tube[1]);
-	executecommand(argv[3],env);
+	executecommand(argv[3], env);
 }
 
-int main(int argc, char **argv, char **env)
+int	main(int argc, char **argv, char **env)
 {
-	t_pipex pipex;
-	// int tube[2];//
-	// pid_t pid;//
+	t_pipex	pipex;
+
 	if (argc != 5)
 		printerror("Incorrect input\n");
-
-
-	// pipex.infile = open(argv[1], O_RDONLY);
-	// if (pipex.infile < 0)
-	// 	printerror("Incorrect infile\n");
-	// pipex.outfile = open(argv[argc - 1], O_TRUNC | O_CREAT | O_RDWR, S_IRWXU);   // 0000644);
-	// if (pipex.outfile < 0)
-		// printerror("Outfile error\n");
-
 	if (pipe(pipex.tube) == -1)
 		printerror("pipe error\n");
-	pipex.pid=fork();//fork nepravilno
-	if (pipex.pid == - 1)
-		printerror("error\n");
+	pipex.pid = fork();
+	if (pipex.pid == -1)
+		printerror("fork error\n");
 	if (pipex.pid == 0)
 		child(argv, env, pipex);
 	waitpid(pipex.pid, NULL, 0);
 	parent(argv, env, pipex);
-	printf("end");
-	printf("aboba");
 	return (0);
 }
